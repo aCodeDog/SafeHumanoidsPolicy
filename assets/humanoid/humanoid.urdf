@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot name="8human">
+  <link name="World">
+    <visual>
+      <origin xyz="0. 0. 0." rpy="1.5707964 0. 0. "/>
+      <geometry>
+        <mesh filename="meshes/Group1.obj" scale="1. 1. 1."/>
+      </geometry>
+    </visual>
+  </link>
+</robot>
