@@ -5,7 +5,14 @@ import random
 import math
 import trimesh
 import matplotlib.pyplot as plt
-import keyboard
+
+# Try to import keyboard, but handle the case where it's not available or requires root
+try:
+    import keyboard
+    KEYBOARD_AVAILABLE = True
+except (ImportError, OSError):
+    KEYBOARD_AVAILABLE = False
+    print("Warning: keyboard module not available or requires root privileges. Keyboard control disabled.")
 
 from utils.utils import to_torch
 from genesis.utils.geom import quat_to_xyz, transform_by_quat, inv_quat, transform_quat_by_quat
@@ -144,7 +151,6 @@ class G1HandRobot(BaseTask):
         """
         self.reset_buf = torch.any(torch.norm(self.contact_forces[:, self.termination_contact_indices, :], dim=-1) > 1., dim=1)
         self.time_out_buf = self.episode_length_buf > self.max_episode_length # no terminal reward for time-outs
-        import keyboard
         
         self.reset_buf |= self.time_out_buf
         # active_reset = keyboard.is_pressed('4')
@@ -1088,16 +1094,20 @@ class G1HandRobot(BaseTask):
         downsampled[..., 1] = theta_centers.unsqueeze(0)
         downsampled[..., 2] = 0.0
 
-        if keyboard.is_pressed('3'):
-            plt.ion()
-            fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-            ax.set_title("Theta vs Radius (r)")
-            r_vis = downsampled[..., 0].cpu().numpy()
-            theta_vis = downsampled[..., 1].cpu().numpy()
-            ax.scatter(theta_vis[0], r_vis[0], c='b', s=10, label='r vs θ')
-            ax.legend()
-            plt.show()
-            plt.pause(0.001)
+        if KEYBOARD_AVAILABLE:
+            try:
+                if keyboard.is_pressed('3'):
+                    plt.ion()
+                    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+                    ax.set_title("Theta vs Radius (r)")
+                    r_vis = downsampled[..., 0].cpu().numpy()
+                    theta_vis = downsampled[..., 1].cpu().numpy()
+                    ax.scatter(theta_vis[0], r_vis[0], c='b', s=10, label='r vs θ')
+                    ax.legend()
+                    plt.show()
+                    plt.pause(0.001)
+            except:
+                pass  # Silently ignore keyboard errors
 
         return downsampled
 
@@ -1150,21 +1160,25 @@ class G1HandRobot(BaseTask):
         else:
             self.visual_input = torch.zeros(self.num_envs, 36, device=self.device)
 
-        if keyboard_control:
-            self.commands = torch.zeros((self.num_envs, 4), device=self.device)
-            if keyboard.is_pressed('up'):
-                self.commands[:, 0] = 0.5
-            elif keyboard.is_pressed('down'):
-                self.commands[:, 0] = -0.4
-            elif keyboard.is_pressed('left'):
-                self.commands[:, 1] = 0.4
-            elif keyboard.is_pressed('right'):
-                self.commands[:, 1] = -0.4
+        if keyboard_control and KEYBOARD_AVAILABLE:
+            try:
+                self.commands = torch.zeros((self.num_envs, 4), device=self.device)
+                if keyboard.is_pressed('up'):
+                    self.commands[:, 0] = 0.5
+                elif keyboard.is_pressed('down'):
+                    self.commands[:, 0] = -0.4
+                elif keyboard.is_pressed('left'):
+                    self.commands[:, 1] = 0.4
+                elif keyboard.is_pressed('right'):
+                    self.commands[:, 1] = -0.4
 
-            if keyboard.is_pressed('1'):
-                self.commands[:, 2] = 0.5
-            elif keyboard.is_pressed('2'):
-                self.commands[:, 2] = -0.5
+                if keyboard.is_pressed('1'):
+                    self.commands[:, 2] = 0.5
+                elif keyboard.is_pressed('2'):
+                    self.commands[:, 2] = -0.5
+            except:
+                #print("Keyboard input error")
+                pass  # Silently ignore keyboard errors
 
         self.commands[:, 0] = 0.5
 
