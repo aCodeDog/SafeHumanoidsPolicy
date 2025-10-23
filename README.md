@@ -48,7 +48,7 @@ SafeHumanoidsPolicy/
 - Python 3.9+
 - CUDA-compatible GPU (recommended)
 - Genesis physics engine
-- PyTorch 2.5.1+
+- PyTorch 2.4.1+
 - See `requirements.txt` for full list of dependencies
 
 ## Installation
@@ -151,7 +151,12 @@ The robot includes:
 If you use this code in your research, please cite:
 
 ```bibtex
-[Add citation information here]
+@article{wang2025end,
+  title={End-to-End Humanoid Robot Safe and Comfortable Locomotion Policy},
+  author={Wang, Zifan and Yang, Xun and Zhao, Jianzhuang and Zhou, Jiaming and Ma, Teli and Gao, Ziyao and Ajoudani, Arash and Liang, Junwei},
+  journal={arXiv preprint arXiv:2508.07611},
+  year={2025}
+}
 ```
 
 ## Contributing
